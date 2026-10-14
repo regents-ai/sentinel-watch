@@ -1,0 +1,32 @@
+# Asks Fly whether Sentinel's machine is running and healthy. A failed run is
+# emailed by GitHub to whoever last changed this file's schedule. The answer
+# printed here is public, so only machine ids, states and check names are shown.
+name: Sentinel is running
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ask Fly about Sentinel's machine
+        env:
+          # A read-only token for the regent organization, exactly as
+          # `fly tokens create readonly` prints it.
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          machines=$(curl -sS --fail --max-time 20 \
+            -H "Authorization: ${FLY_API_TOKEN}" \
+            https://api.machines.dev/v1/apps/sentinel-regent/machines)
+          healthy=$(jq '[.[] | select(.state == "started" and all(.checks[]?; .status == "passing"))] | length' <<< "$machines")
+          if [ "$healthy" -ge 1 ]; then
+            echo "Sentinel is running."
+          else
+            echo "Sentinel is not running:"
+            jq -r '.[] | "\(.id) \(.state) \([.checks[]? | "\(.name)=\(.status)"] | join(" "))"' <<< "$machines"
+            exit 1
+          fi
