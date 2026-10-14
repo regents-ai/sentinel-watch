@@ -4,6 +4,8 @@
 name: Sentinel is running
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions: {}
