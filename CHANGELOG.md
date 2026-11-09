@@ -2,6 +2,12 @@
 
 Each change to the check, newest first. A change takes effect when it lands on main.
 
+## 9 Nov 2026
+
+- The README gives Sentinel's real wait: it warns after 12 hours without a run, not 6. From 27 Oct
+  to 9 Nov GitHub started the schedule three to ten hours apart, so a 6-hour wait would warn on
+  ordinary gaps.
+
 ## 16 Oct 2026
 
 - The README now matches what the check and Sentinel do: GitHub starts the five-minute schedule about
